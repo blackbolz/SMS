@@ -180,9 +180,16 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 30px;
+            margin-top: 20px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
 
         .app-icon {
@@ -199,15 +206,23 @@
             width: 60px;
             height: 60px;
             border-radius: 15px;
-            background: #FF9500;
+            background: transparent;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s ease, background 0.3s ease;
+            transition: transform 0.2s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+        }
+
+        .app-name {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            font-weight: 500;
+            margin-top: 3px;
         }
 
         .copy-button img {
@@ -224,6 +239,14 @@
         .copy-button:hover {
             transform: scale(1.1);
             background: #E8890B;
+        }
+
+        .app-container:hover .app-icon {
+            transform: scale(1.1);
+        }
+
+        .app-container:hover .copy-button {
+            transform: scale(1.1);
         }
 
         .app-icon img {
@@ -326,18 +349,30 @@
                 </div>
                 
                 <div class="app-icons">
-                    <div class="app-icon" data-app="1">
-                        <img src="images/pumplogo.png" alt="App 1">
+                    <div class="app-container">
+                        <div class="app-icon" data-app="1">
+                            <img src="images/pumplogo.png" alt="App 1">
+                        </div>
+                        <div class="app-name">Pump fun</div>
                     </div>
-                    <div class="app-icon" data-app="2">
-                        <img src="images/dexlogo.png" alt="App 2">
+                    <div class="app-container">
+                        <div class="app-icon" data-app="2">
+                            <img src="images/dexlogo.png" alt="App 2">
+                        </div>
+                        <div class="app-name">DexScreener</div>
                     </div>
-                    <div class="app-icon" data-app="3">
-                        <img src="images/xlogo.png" alt="App 3">
+                    <div class="app-container">
+                        <div class="app-icon" data-app="3">
+                            <img src="images/xlogo.png" alt="App 3">
+                        </div>
+                        <div class="app-name">X </div>
                     </div>
-                    <button class="copy-button" id="copyContactBtn">
-                        <img src="images/copylogo.png" alt="Copy Contact" id="copyContactImg">
-                    </button>
+                    <div class="app-container">
+                        <button class="copy-button" id="copyContactBtn">
+                            <img src="images/copylogo.png" alt="Copy Contact" id="copyContactImg">
+                        </button>
+                        <div class="app-name">CA</div>
+                    </div>
                 </div>
             </div>
             
@@ -494,13 +529,13 @@
                 
                 // Add your links here when ready
                 if (appNumber === '1') {
-                    // window.open('https://your-pump-link.com', '_blank');
+                     window.open('', '_blank');
                     console.log('Pump app clicked - add link here');
                 } else if (appNumber === '2') {
-                    // window.open('https://your-dex-link.com', '_blank');
+                     window.open('https://dexscreener.com/', '_blank');
                     console.log('Dex app clicked - add link here');
                 } else if (appNumber === '3') {
-                    // window.open('https://your-x-link.com', '_blank');
+                     window.open('https://x.com/i/communities/1958647821390770513/', '_blank');
                     console.log('X app clicked - add link here');
                 }
             });
@@ -508,16 +543,18 @@
 
         // Copy contact button functionality
         document.getElementById('copyContactBtn').addEventListener('click', function() {
-            const contactAddress = "contact adress"; // You can edit this text later
+            const contactAddress = "coming soon"; // You can edit this text later
             const copyImg = document.getElementById('copyContactImg');
             
             navigator.clipboard.writeText(contactAddress).then(function() {
-                // Success feedback - temporarily change image
+                // Success feedback - briefly show green overlay
                 const originalSrc = copyImg.src;
-                copyImg.src = "https://via.placeholder.com/60x60/34C759/FFFFFF?text=✓";
+                
+                // Create a temporary green overlay effect
+                copyImg.style.filter = 'hue-rotate(120deg) brightness(1.2)';
                 
                 setTimeout(() => {
-                    copyImg.src = originalSrc;
+                    copyImg.style.filter = 'none';
                 }, 1500);
             }).catch(function() {
                 // Fallback for older browsers
@@ -530,10 +567,10 @@
                 
                 // Success feedback
                 const originalSrc = copyImg.src;
-                copyImg.src = "https://via.placeholder.com/60x60/34C759/FFFFFF?text=✓";
+                copyImg.style.filter = 'hue-rotate(120deg) brightness(1.2)';
                 
                 setTimeout(() => {
-                    copyImg.src = originalSrc;
+                    copyImg.style.filter = 'none';
                 }, 1500);
             });
         });
