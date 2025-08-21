@@ -10,16 +10,16 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, push, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Replace this with your actual Firebase config from the console
+        // CORRECT Firebase config with databaseURL
         const firebaseConfig = {
-            // PASTE YOUR ACTUAL CONFIG HERE - it will look like:
-            // apiKey: "AIzaSyC...",
-            // authDomain: "your-project.firebaseapp.com",
-            // databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
-            // projectId: "your-project",
-            // storageBucket: "your-project.appspot.com", 
-            // messagingSenderId: "123456789",
-            // appId: "1:123456789:web:abcdef123456"
+            apiKey: "AIzaSyAsJh8qq9RvkrGlhwtnt_1RMyVmkCA7b3Y",
+            authDomain: "sms-coin-7f745.firebaseapp.com",
+            databaseURL: "https://sms-coin-7f745-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "sms-coin-7f745",
+            storageBucket: "sms-coin-7f745.firebasestorage.app",
+            messagingSenderId: "294441486394",
+            appId: "1:294441486394:web:f6e2d6fe1675769f838d03",
+            measurementId: "G-5M00CRNM5N"
         };
 
         // Initialize Firebase
@@ -260,17 +260,6 @@
             }
         }
 
-        .instructions {
-            position: absolute;
-            bottom: 40px;
-            left: 20px;
-            right: 20px;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.4;
-            display: none;
-        }
-
         .home-indicator {
             position: absolute;
             bottom: 8px;
@@ -323,7 +312,6 @@
                         <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App3" alt="App 3">
                     </div>
                 </div>
-                
             </div>
             
             <div class="messages-container"></div>
@@ -354,11 +342,9 @@
             console.log('Database URL:', window.firebase.database.app.options.databaseURL);
 
             try {
-                // Test database connection
                 const testRef = window.firebase.messagesRef;
                 console.log('Messages reference created:', testRef);
 
-                // Listen for new messages added to Firebase
                 let lastMessageCount = 0;
                 
                 window.firebase.onValue(testRef, (snapshot) => {
@@ -369,11 +355,9 @@
                         const messages = Object.values(data);
                         const currentMessageCount = messages.length;
                         
-                        // Only show new messages (not on initial load)
                         if (lastMessageCount > 0 && currentMessageCount > lastMessageCount) {
                             const latestMessage = messages[messages.length - 1];
                             if (latestMessage && latestMessage.text) {
-                                // Only show if it's not from current user
                                 const currentUserId = generateUserId();
                                 if (latestMessage.userId !== currentUserId) {
                                     createFloatingMessage(latestMessage.text, true);
@@ -402,23 +386,20 @@
             message.className = 'floating-message';
             message.textContent = text;
             
-            // Random position within phone screen bounds
             const screenRect = phoneScreen.getBoundingClientRect();
-            const maxWidth = screenRect.width - 220; // Account for message width
+            const maxWidth = screenRect.width - 220;
             const startX = Math.random() * Math.max(20, maxWidth);
             const startY = screenRect.height;
             
             message.style.left = startX + 'px';
             message.style.top = startY + 'px';
             
-            // Different color for messages from other users
             if (isFromFirebase) {
-                message.style.background = '#34C759'; // Green for other users
+                message.style.background = '#34C759';
             }
             
             messagesContainer.appendChild(message);
             
-            // Remove the message after animation
             setTimeout(() => {
                 if (message.parentNode) {
                     message.parentNode.removeChild(message);
@@ -431,14 +412,12 @@
             if (text) {
                 if (window.firebase) {
                     try {
-                        // Send to Firebase
                         window.firebase.push(window.firebase.messagesRef, {
                             text: text,
                             timestamp: window.firebase.serverTimestamp(),
                             userId: generateUserId()
                         });
                         
-                        // Show locally immediately (blue bubble for own messages)
                         createFloatingMessage(text, false);
                         
                         messageInput.value = '';
@@ -457,7 +436,6 @@
         }
 
         function generateUserId() {
-            // Simple user ID generation (you might want to improve this)
             let userId = localStorage.getItem('sms-user-id');
             if (!userId) {
                 userId = 'user-' + Math.random().toString(36).substr(2, 9);
@@ -474,12 +452,10 @@
             }
         });
 
-        // App icon click handlers
         document.querySelectorAll('.app-icon').forEach(icon => {
             icon.addEventListener('click', function() {
                 const appNumber = this.getAttribute('data-app');
                 console.log(`App ${appNumber} clicked - ready for link integration`);
-                // Links will be added here later
             });
         });
     </script>
