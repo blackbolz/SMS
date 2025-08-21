@@ -3,484 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS - This Definitely Sends</title>
-    
-    <!-- Firebase SDK -->
+    <title>Firebase Test</title>
+</head>
+<body>
+    <h1>Firebase Connection Test</h1>
+    <button id="testBtn">Test Firebase Connection</button>
+    <button id="sendBtn">Send Test Message</button>
+    <div id="status"></div>
+    <div id="messages"></div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, push, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Replace this with your actual Firebase config from the console
+        // REPLACE THIS WITH YOUR EXACT CONFIG FROM FIREBASE CONSOLE
         const firebaseConfig = {
             apiKey: "AIzaSyAsJh8qq9RvkrGlhwtnt_1RMyVmkCA7b3Y",
             authDomain: "sms-coin-7f745.firebaseapp.com",
+            databaseURL: "https://sms-coin-7f745-default-rtdb.firebaseio.com/",
             projectId: "sms-coin-7f745",
             storageBucket: "sms-coin-7f745.firebasestorage.app",
             messagingSenderId: "294441486394",
-            appId: "1:294441486394:web:f6e2d6fe1675769f838d03",
-            measurementId: "G-5M00CRNM5N"
+            appId: "1:294441486394:web:f6e2d6fe1675769f838d03"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        const messagesRef = ref(database, 'messages');
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
 
-        // Make Firebase functions available globally
-        window.firebase = {
-            database,
-            messagesRef,
-            push,
-            onValue,
-            serverTimestamp
-        };
-    </script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        function log(message) {
+            console.log(message);
+            status.innerHTML += '<br>' + message;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: white;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+        try {
+            log('1. Initializing Firebase...');
+            const app = initializeApp(firebaseConfig);
+            log('2. Firebase app initialized successfully');
 
-        .phone-frame {
-            width: 400px;
-            height: 700px;
-            background: #1a1a1a;
-            border-radius: 35px;
-            padding: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            position: relative;
-        }
+            log('3. Getting database instance...');
+            const database = getDatabase(app);
+            log('4. Database instance created');
 
-        .phone-frame::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 6px;
-            background: #555;
-            border-radius: 3px;
-        }
+            log('5. Creating messages reference...');
+            const messagesRef = ref(database, 'test-messages');
+            log('6. Messages reference created');
 
-        .phone-frame::after {
-            content: '';
-            position: absolute;
-            top: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 15px;
-            height: 15px;
-            background: #333;
-            border-radius: 50%;
-        }
-
-        .phone-screen {
-            width: 100%;
-            height: 100%;
-            background: white;
-            border-radius: 25px;
-            position: relative;
-            overflow: hidden;
-            padding: 60px 20px 20px 20px;
-        }
-
-        .container {
-            text-align: center;
-            height: 100%;
-            position: relative;
-        }
-
-        .main-title {
-            margin-bottom: 10px;
-        }
-
-        .sms-bubble-title {
-            display: inline-block;
-            background: #007AFF;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 20px;
-            font-size: 36px;
-            font-weight: bold;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
-        }
-
-        .sms-bubble-title::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 25px;
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 12px solid #007AFF;
-        }
-
-        .subtitle {
-            color: #007AFF;
-            font-size: 18px;
-            margin-bottom: 30px;
-            font-weight: 300;
-        }
-
-        .input-section {
-            margin: 30px 0;
-        }
-
-        .message-input {
-            width: 100%;
-            padding: 12px 18px;
-            font-size: 16px;
-            border: 2px solid #007AFF;
-            border-radius: 20px;
-            outline: none;
-            margin-bottom: 15px;
-            background: #f8f9fa;
-        }
-
-        .message-input:focus {
-            border-color: #0056CC;
-            box-shadow: 0 0 10px rgba(0, 122, 255, 0.2);
-        }
-
-        .send-button {
-            background: #007AFF;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-        }
-
-        .send-button:hover {
-            background: #0056CC;
-            transform: translateY(-1px);
-        }
-
-        .app-icons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-            margin-bottom: 20px;
-        }
-
-        .app-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .app-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .app-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 15px;
-        }
-
-        .messages-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .floating-message {
-            position: absolute;
-            background: #007AFF;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            max-width: 200px;
-            word-wrap: break-word;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-            animation: float-up 4s ease-out forwards;
-            pointer-events: none;
-        }
-
-        .floating-message::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 15px;
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid #007AFF;
-        }
-
-        @keyframes float-up {
-            0% {
-                opacity: 0;
-                transform: translateY(30px) scale(0.8);
-            }
-            20% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            80% {
-                opacity: 1;
-                transform: translateY(-100px) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-150px) scale(0.8);
-            }
-        }
-
-        .instructions {
-            position: absolute;
-            bottom: 40px;
-            left: 20px;
-            right: 20px;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.4;
-            display: none;
-        }
-
-        .home-indicator {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 140px;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-        }
-
-        @media (max-width: 500px) {
-            .phone-frame {
-                width: 95vw;
-                height: 85vh;
-                max-width: 380px;
-            }
-            
-            .sms-bubble-title {
-                font-size: 32px;
-                padding: 12px 25px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="phone-frame">
-        <div class="phone-screen">
-            <div class="container">
-                <div class="main-title">
-                    <div class="sms-bubble-title">SMS</div>
-                </div>
+            // Test connection by listening
+            document.getElementById('testBtn').addEventListener('click', () => {
+                log('7. Testing database connection...');
                 
-                <div class="subtitle">This definitely sends</div>
-                
-                <div class="input-section">
-                    <input type="text" class="message-input" placeholder="Type your message here..." maxlength="100">
-                    <br>
-                    <button class="send-button">Send Message</button>
-                </div>
-                
-                <div class="app-icons">
-                    <div class="app-icon" data-app="1">
-                        <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App1" alt="App 1">
-                    </div>
-                    <div class="app-icon" data-app="2">
-                        <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App2" alt="App 2">
-                    </div>
-                    <div class="app-icon" data-app="3">
-                        <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App3" alt="App 3">
-                    </div>
-                </div>
-                
-            </div>
-            
-            <div class="messages-container"></div>
-            <div class="home-indicator"></div>
-        </div>
-    </div>
-
-    <script>
-        const messageInput = document.querySelector('.message-input');
-        const sendButton = document.querySelector('.send-button');
-        const messagesContainer = document.querySelector('.messages-container');
-        const phoneScreen = document.querySelector('.phone-screen');
-
-        // Wait for Firebase to load
-        window.addEventListener('load', function() {
-            initializeFirebase();
-            messageInput.focus();
-        });
-
-        function initializeFirebase() {
-            if (!window.firebase) {
-                console.log('Firebase not loaded yet, retrying...');
-                setTimeout(initializeFirebase, 100);
-                return;
-            }
-
-            console.log('Firebase initialized successfully!');
-            console.log('Database URL:', window.firebase.database.app.options.databaseURL);
-
-            try {
-                // Test database connection
-                const testRef = window.firebase.messagesRef;
-                console.log('Messages reference created:', testRef);
-
-                // Listen for new messages added to Firebase
-                let lastMessageCount = 0;
-                
-                window.firebase.onValue(testRef, (snapshot) => {
-                    console.log('Database snapshot received:', snapshot.val());
-                    
-                    const data = snapshot.val();
-                    if (data) {
-                        const messages = Object.values(data);
-                        const currentMessageCount = messages.length;
-                        
-                        // Only show new messages (not on initial load)
-                        if (lastMessageCount > 0 && currentMessageCount > lastMessageCount) {
-                            const latestMessage = messages[messages.length - 1];
-                            if (latestMessage && latestMessage.text) {
-                                // Only show if it's not from current user
-                                const currentUserId = generateUserId();
-                                if (latestMessage.userId !== currentUserId) {
-                                    createFloatingMessage(latestMessage.text, true);
-                                }
-                            }
-                        }
-                        
-                        lastMessageCount = currentMessageCount;
-                    } else {
-                        console.log('No messages in database yet');
-                        lastMessageCount = 0;
-                    }
+                onValue(messagesRef, (snapshot) => {
+                    log('8. ✅ Database connection successful!');
+                    log('Data: ' + JSON.stringify(snapshot.val()));
                 }, (error) => {
-                    console.error('Firebase read error:', error);
-                    alert('Database connection error: ' + error.message);
+                    log('8. ❌ Database connection failed: ' + error.message);
                 });
-                
-            } catch (error) {
-                console.error('Firebase initialization error:', error);
-                alert('Firebase setup error: ' + error.message);
-            }
-        }
-
-        function createFloatingMessage(text, isFromFirebase = false) {
-            const message = document.createElement('div');
-            message.className = 'floating-message';
-            message.textContent = text;
-            
-            // Random position within phone screen bounds
-            const screenRect = phoneScreen.getBoundingClientRect();
-            const maxWidth = screenRect.width - 220; // Account for message width
-            const startX = Math.random() * Math.max(20, maxWidth);
-            const startY = screenRect.height;
-            
-            message.style.left = startX + 'px';
-            message.style.top = startY + 'px';
-            
-            // Different color for messages from other users
-            if (isFromFirebase) {
-                message.style.background = '#34C759'; // Green for other users
-            }
-            
-            messagesContainer.appendChild(message);
-            
-            // Remove the message after animation
-            setTimeout(() => {
-                if (message.parentNode) {
-                    message.parentNode.removeChild(message);
-                }
-            }, 4000);
-        }
-
-        function sendMessage() {
-            const text = messageInput.value.trim();
-            if (text) {
-                if (window.firebase) {
-                    try {
-                        // Send to Firebase
-                        window.firebase.push(window.firebase.messagesRef, {
-                            text: text,
-                            timestamp: window.firebase.serverTimestamp(),
-                            userId: generateUserId()
-                        });
-                        
-                        // Show locally immediately (blue bubble for own messages)
-                        createFloatingMessage(text, false);
-                        
-                        messageInput.value = '';
-                        messageInput.focus();
-                        
-                        console.log('Message sent successfully!');
-                    } catch (error) {
-                        console.error('Firebase error:', error);
-                        alert('Firebase error: ' + error.message);
-                    }
-                } else {
-                    console.error('Firebase not initialized');
-                    alert('Firebase not connected. Please check your configuration.');
-                }
-            }
-        }
-
-        function generateUserId() {
-            // Simple user ID generation (you might want to improve this)
-            let userId = localStorage.getItem('sms-user-id');
-            if (!userId) {
-                userId = 'user-' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('sms-user-id', userId);
-            }
-            return userId;
-        }
-
-        sendButton.addEventListener('click', sendMessage);
-        
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // App icon click handlers
-        document.querySelectorAll('.app-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                const appNumber = this.getAttribute('data-app');
-                console.log(`App ${appNumber} clicked - ready for link integration`);
-                // Links will be added here later
             });
-        });
+
+            // Test sending data
+            document.getElementById('sendBtn').addEventListener('click', () => {
+                log('9. Sending test message...');
+                
+                push(messagesRef, {
+                    text: 'Test message ' + Date.now(),
+                    timestamp: serverTimestamp()
+                }).then(() => {
+                    log('10. ✅ Message sent successfully!');
+                }).catch((error) => {
+                    log('10. ❌ Send failed: ' + error.message);
+                });
+            });
+
+            // Listen for messages
+            onValue(messagesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    messages.innerHTML = '<h3>Messages:</h3>' + JSON.stringify(data, null, 2);
+                }
+            });
+
+        } catch (error) {
+            log('❌ Initialization error: ' + error.message);
+        }
     </script>
 </body>
 </html>
