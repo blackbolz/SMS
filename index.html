@@ -233,7 +233,7 @@
             content: '';
             position: absolute;
             bottom: -6px;
-            left: 15px;
+            left: 8px;
             width: 0;
             height: 0;
             border-left: 8px solid transparent;
@@ -396,6 +396,15 @@
             
             if (isFromFirebase) {
                 message.style.background = '#34C759';
+                // Create a custom ::after for green triangle
+                const style = document.createElement('style');
+                style.textContent = `
+                    .floating-message[data-green="true"]::after {
+                        border-top-color: #34C759 !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                message.setAttribute('data-green', 'true');
             }
             
             messagesContainer.appendChild(message);
