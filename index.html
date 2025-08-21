@@ -331,16 +331,16 @@
                 
                 <div class="app-icons">
                     <div class="app-icon" data-app="1">
-                        <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App1" alt="App 1">
+                        <img src="images/pumplogo.png" alt="App 1">
                     </div>
                     <div class="app-icon" data-app="2">
-                        <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App2" alt="App 2">
+                        <img src="images/dexlogo.png" alt="App 2">
                     </div>
                     <div class="app-icon" data-app="3">
-                        <img src="https://via.placeholder.com/60x60/007AFF/FFFFFF?text=App3" alt="App 3">
+                        <img src="images/xlogo.png" alt="App 3">
                     </div>
                     <button class="copy-button" id="copyContactBtn">
-                        <img src="https://via.placeholder.com/60x60/FF9500/FFFFFF?text=COPY" alt="Copy Contact" id="copyContactImg">
+                        <img src="images/copylogo.png" alt="Copy Contact" id="copyContactImg">
                     </button>
                 </div>
             </div>
@@ -495,7 +495,18 @@
         document.querySelectorAll('.app-icon').forEach(icon => {
             icon.addEventListener('click', function() {
                 const appNumber = this.getAttribute('data-app');
-                console.log(`App ${appNumber} clicked - ready for link integration`);
+                
+                // Add your links here when ready
+                if (appNumber === '1') {
+                    // window.open('https://your-pump-link.com', '_blank');
+                    console.log('Pump app clicked - add link here');
+                } else if (appNumber === '2') {
+                    // window.open('https://your-dex-link.com', '_blank');
+                    console.log('Dex app clicked - add link here');
+                } else if (appNumber === '3') {
+                    // window.open('https://your-x-link.com', '_blank');
+                    console.log('X app clicked - add link here');
+                }
             });
         });
 
