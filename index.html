@@ -13,12 +13,12 @@
         // Replace this with your actual Firebase config from the console
         const firebaseConfig = {
             apiKey: "AIzaSyAsJh8qq9RvkrGlhwtnt_1RMyVmkCA7b3Y",
-          authDomain: "sms-coin-7f745.firebaseapp.com",
-          projectId: "sms-coin-7f745",
-          storageBucket: "sms-coin-7f745.firebasestorage.app",
-          messagingSenderId: "294441486394",
-          appId: "1:294441486394:web:f6e2d6fe1675769f838d03",
-          measurementId: "G-5M00CRNM5N"
+            authDomain: "sms-coin-7f745.firebaseapp.com",
+            projectId: "sms-coin-7f745",
+            storageBucket: "sms-coin-7f745.firebasestorage.app",
+            messagingSenderId: "294441486394",
+            appId: "1:294441486394:web:f6e2d6fe1675769f838d03",
+            measurementId: "G-5M00CRNM5N"
         };
 
         // Initialize Firebase
@@ -350,34 +350,50 @@
             }
 
             console.log('Firebase initialized successfully!');
+            console.log('Database URL:', window.firebase.database.app.options.databaseURL);
 
-            // Listen for new messages added to Firebase
-            const messagesRef = window.firebase.messagesRef;
-            let lastMessageCount = 0;
-            
-            window.firebase.onValue(messagesRef, (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    const messages = Object.values(data);
-                    const currentMessageCount = messages.length;
+            try {
+                // Test database connection
+                const testRef = window.firebase.messagesRef;
+                console.log('Messages reference created:', testRef);
+
+                // Listen for new messages added to Firebase
+                let lastMessageCount = 0;
+                
+                window.firebase.onValue(testRef, (snapshot) => {
+                    console.log('Database snapshot received:', snapshot.val());
                     
-                    // Only show new messages (not on initial load)
-                    if (lastMessageCount > 0 && currentMessageCount > lastMessageCount) {
-                        const latestMessage = messages[messages.length - 1];
-                        if (latestMessage && latestMessage.text) {
-                            // Only show if it's not from current user
-                            const currentUserId = generateUserId();
-                            if (latestMessage.userId !== currentUserId) {
-                                createFloatingMessage(latestMessage.text, true);
+                    const data = snapshot.val();
+                    if (data) {
+                        const messages = Object.values(data);
+                        const currentMessageCount = messages.length;
+                        
+                        // Only show new messages (not on initial load)
+                        if (lastMessageCount > 0 && currentMessageCount > lastMessageCount) {
+                            const latestMessage = messages[messages.length - 1];
+                            if (latestMessage && latestMessage.text) {
+                                // Only show if it's not from current user
+                                const currentUserId = generateUserId();
+                                if (latestMessage.userId !== currentUserId) {
+                                    createFloatingMessage(latestMessage.text, true);
+                                }
                             }
                         }
+                        
+                        lastMessageCount = currentMessageCount;
+                    } else {
+                        console.log('No messages in database yet');
+                        lastMessageCount = 0;
                     }
-                    
-                    lastMessageCount = currentMessageCount;
-                } else {
-                    lastMessageCount = 0;
-                }
-            });
+                }, (error) => {
+                    console.error('Firebase read error:', error);
+                    alert('Database connection error: ' + error.message);
+                });
+                
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                alert('Firebase setup error: ' + error.message);
+            }
         }
 
         function createFloatingMessage(text, isFromFirebase = false) {
@@ -411,21 +427,31 @@
 
         function sendMessage() {
             const text = messageInput.value.trim();
-            if (text && window.firebase) {
-                // Send to Firebase
-                window.firebase.push(window.firebase.messagesRef, {
-                    text: text,
-                    timestamp: window.firebase.serverTimestamp(),
-                    userId: generateUserId()
-                });
-                
-                // Show locally immediately (blue bubble for own messages)
-                createFloatingMessage(text, false);
-                
-                messageInput.value = '';
-                messageInput.focus();
-            } else if (text && !window.firebase) {
-                alert('Firebase not connected. Please check your configuration.');
+            if (text) {
+                if (window.firebase) {
+                    try {
+                        // Send to Firebase
+                        window.firebase.push(window.firebase.messagesRef, {
+                            text: text,
+                            timestamp: window.firebase.serverTimestamp(),
+                            userId: generateUserId()
+                        });
+                        
+                        // Show locally immediately (blue bubble for own messages)
+                        createFloatingMessage(text, false);
+                        
+                        messageInput.value = '';
+                        messageInput.focus();
+                        
+                        console.log('Message sent successfully!');
+                    } catch (error) {
+                        console.error('Firebase error:', error);
+                        alert('Firebase error: ' + error.message);
+                    }
+                } else {
+                    console.error('Firebase not initialized');
+                    alert('Firebase not connected. Please check your configuration.');
+                }
             }
         }
 
