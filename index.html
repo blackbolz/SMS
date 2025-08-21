@@ -10,15 +10,16 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, push, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        // Your Firebase config (you'll need to replace this with your actual config)
-         const firebaseConfig = {
-          apiKey: "AIzaSyAsJh8qq9RvkrGlhwtnt_1RMyVmkCA7b3Y",
-          authDomain: "sms-coin-7f745.firebaseapp.com",
-          projectId: "sms-coin-7f745",
-          storageBucket: "sms-coin-7f745.firebasestorage.app",
-          messagingSenderId: "294441486394",
-          appId: "1:294441486394:web:f6e2d6fe1675769f838d03",
-          measurementId: "G-5M00CRNM5N"
+        // Replace this with your actual Firebase config from the console
+        const firebaseConfig = {
+            // PASTE YOUR ACTUAL CONFIG HERE - it will look like:
+            // apiKey: "AIzaSyC...",
+            // authDomain: "your-project.firebaseapp.com",
+            // databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
+            // projectId: "your-project",
+            // storageBucket: "your-project.appspot.com", 
+            // messagingSenderId: "123456789",
+            // appId: "1:123456789:web:abcdef123456"
         };
 
         // Initialize Firebase
@@ -349,30 +350,33 @@
                 return;
             }
 
-            // Listen for new messages from Firebase
-            window.firebase.onValue(window.firebase.messagesRef, (snapshot) => {
-                // We only want to show new messages as they come in
-                // This prevents showing all historical messages on page load
-            });
+            console.log('Firebase initialized successfully!');
 
             // Listen for new messages added to Firebase
             const messagesRef = window.firebase.messagesRef;
-            let isInitialLoad = true;
+            let lastMessageCount = 0;
             
             window.firebase.onValue(messagesRef, (snapshot) => {
-                if (isInitialLoad) {
-                    isInitialLoad = false;
-                    return; // Skip initial load to avoid showing all historical messages
-                }
-                
                 const data = snapshot.val();
                 if (data) {
-                    // Get the latest message
                     const messages = Object.values(data);
-                    const latestMessage = messages[messages.length - 1];
-                    if (latestMessage && latestMessage.text) {
-                        createFloatingMessage(latestMessage.text, true);
+                    const currentMessageCount = messages.length;
+                    
+                    // Only show new messages (not on initial load)
+                    if (lastMessageCount > 0 && currentMessageCount > lastMessageCount) {
+                        const latestMessage = messages[messages.length - 1];
+                        if (latestMessage && latestMessage.text) {
+                            // Only show if it's not from current user
+                            const currentUserId = generateUserId();
+                            if (latestMessage.userId !== currentUserId) {
+                                createFloatingMessage(latestMessage.text, true);
+                            }
+                        }
                     }
+                    
+                    lastMessageCount = currentMessageCount;
+                } else {
+                    lastMessageCount = 0;
                 }
             });
         }
